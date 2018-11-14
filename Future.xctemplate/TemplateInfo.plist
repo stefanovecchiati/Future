@@ -1,0 +1,1082 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Kind</key>
+	<string>Xcode.Xcode3.ProjectTemplateUnitKind</string>
+	<key>Identifier</key>
+	<string>com.stefanovecchiati.dynamicApplication</string>
+	<key>Ancestors</key>
+	<array>
+		<string>com.apple.dt.unit.cocoaTouchApplicationBase</string>
+		<string>com.personalLibrary.dt.unit.swift_lint_run_script</string>
+	</array>
+	<key>Targets</key>
+	<array>
+		<dict>
+			<key>BuildPhases</key>
+			<array>
+				<dict>
+					<key>Class</key>
+					<string>ShellScript</string>
+					<key>Name</key>
+					<string>Run R.Swift Script</string>
+					<key>ShellPath</key>
+					<string>/bin/sh</string>
+					<key>ShellScript</key>
+					<string>&quot;$PODS_ROOT/R.swift/rswift&quot; generate &quot;$SRCROOT&quot;</string>
+				</dict>
+			</array>
+		</dict>
+	</array>
+	<key>Concrete</key>
+	<true/>
+	<key>Description</key>
+	<string>This template provides a starting point for an application using a Dynamic Architecture.</string>
+	<key>SortOrder</key>
+	<integer>0</integer>
+	<key>Options</key>
+	<array>
+		<dict>
+			<key>Identifier</key>
+			<string>languageChoice</string>
+			<key>Units</key>
+			<dict>
+				<key>Swift</key>
+				<dict>
+					<key>Nodes</key>
+					<array>
+						<string>AppDelegate.swift</string>
+						<string>Extensions.swift</string>
+						<string>Subclasses/Base/BaseCollectionViewCell.swift</string>
+						<string>Subclasses/Base/BaseColletcionView.swift</string>
+						<string>Subclasses/Base/BaseModel.swift</string>
+						<string>Subclasses/Base/BaseNavigationController.swift</string>
+						<string>Subclasses/Base/BaseTabBarController.swift</string>
+						<string>Subclasses/Base/BaseWidgetView.swift</string>
+						<string>Subclasses/Base/BaseHorizontalCollectionView/BaseHorizontalCollectionView.swift</string>
+						<string>Subclasses/Base/BaseHorizontalCollectionView/BaseHorizontalCollectionView.xib</string>
+						<string>Widget/ViewWidget/ViewWidget.swift</string>
+						<string>Widget/ViewWidget/ViewWidget.xib</string>
+						<string>R.generated.swift</string>
+						<string>../Podfile:swiftbasics</string>
+						<string>GeneralUtils.swift</string>
+						<string>LoadingViewController.swift:comments</string>
+						<string>LoadingViewController.swift:imports:importCocoa</string>
+						<string>LoadingViewController.swift:implementation(___FILEBASENAME___: UIViewController)</string>
+						<string>LoadingViewController.swift:implementation:methods:viewDidLoad(override func viewDidLoad(\))</string>
+						<string>Subclasses/Base/ViewController/ViewController.swift</string>
+						<string>en.lproj/Localizable.strings</string>
+						<string>DeviceModel.swift</string>
+						<string>Subclasses/GeneralHeightElementsConstraint.swift</string>
+						<string>Subclasses/Buttons/GeneralButton.swift</string>
+						<string>Subclasses/Buttons/UnderlineButton.swift</string>
+						<string>Assets.xcassets</string>
+					</array>
+				</dict>
+			</dict>
+		</dict>
+		<dict>
+			<key>Identifier</key>
+			<string>firebase autentication</string>
+			<key>Name</key>
+			<string>Firebase Autentication</string>
+			<key>NotPersisted</key>
+			<false/>
+			<key>Type</key>
+			<string>checkbox</string>
+			<key>Default</key>
+			<string>false</string>
+			<key>Units</key>
+			<dict>
+				<key>true</key>
+				<dict>
+					<key>RequiredOptions</key>
+					<dict>
+						<key>languageChoice</key>
+						<string>Swift</string>
+					</dict>
+					<key>Definitions</key>
+					<dict>
+						<key>../Podfile:fbpod</key>
+						<string>pod &apos;Firebase/Core&apos;</string>
+						<key>../Podfile:fbauth</key>
+						<string>pod &apos;Firebase/Auth&apos;</string>
+						<key>../Podfile:fbcod</key>
+						<string>pod &apos;CodableFirebase&apos;</string>
+						<key>LoadingViewController.swift:implementation:methods:viewDidLoad</key>
+						<string>override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        self.view.backgroundColor = .white
+        
+        
+        
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        
+        super.viewDidAppear(animated)
+        
+        var viewController : ViewController!
+        
+        FirebaseAccess.checkLoggeduser { success, emailVerified  in
+            if success {
+                
+                if let emailVerified = emailVerified, !emailVerified, let sendEmailVerification = FirebaseSettings.getObject()?.sendEmailVerification, sendEmailVerification {
+                    
+                    self.showAlertListenerEmailVerification()
+                    
+                    return
+                } else {
+                    
+                    viewController = ViewController(withModel: Model.createModel())
+                    
+                }
+                
+            } else {
+                
+                viewController = ViewController(withModel: AccessWidget.createModel())
+                
+            }
+            
+            self.presentController(viewController)
+        }
+        
+        
+        
+    }
+    
+    private func showAlertListenerEmailVerification() {
+        
+        var viewController : ViewController!
+        
+        let alert = GeneralUtils.share.alertBuilder(title: R.string.localizable.kStandby(), message: R.string.localizable.kStandbyDescription(), style: .actionSheet, withAction: true, actionTitle: [R.string.localizable.kStandbyAction(), R.string.localizable.kResendEmail()] , closeAction: { index in
+            
+            
+            switch index {
+            case 0:
+                FirebaseAccess.removeUserListenerVerificationEmail()
+                FirebaseAccess.logout(completion: { success in
+                    if success {
+                        viewController = ViewController(withModel: AccessWidget.createModel())
+                        
+                        self.presentController(viewController)
+                    }
+                })
+                
+            case 1:
+                
+                self.showAlertListenerEmailVerification()
+                
+                FirebaseAccess.sendEmailVerification(completion: { _ in
+                    
+                })
+            default:
+                break
+                
+            }
+            
+        })
+        
+        FirebaseAccess.userListenerVerificationEmail(completion: { success in
+            if success {
+                
+                alert.dismiss(animated: true, completion: {
+                    
+                    viewController = ViewController(withModel: Model.createModel())
+                    
+                    self.presentController(viewController)
+                    
+                })
+            }
+        })
+        
+        UIApplication.topViewController()?.present(alert, animated: true, completion: nil)
+    }
+    
+    private func presentController(_ viewController : ViewController) {
+        UIApplication.shared.delegate?.window??.rootViewController = BaseNavigationController(rootViewController: viewController)
+        UIApplication.shared.delegate?.window??.makeKeyAndVisible()
+    }
+    
+    
+    override func didReceiveMemoryWarning() {
+        super.didReceiveMemoryWarning()
+        // Dispose of any resources that can be recreated.
+    }</string>
+						<key>Widget/Access/AccessWidget/AccessWidget.swift</key>
+						<dict>
+							<key>Path</key>
+							<string>Widget/Access/AccessWidget/AccessWidget.swift</string>
+							<key>Group</key>
+							<array>
+								<string>Widget</string>
+								<string>Access</string>
+								<string>AccessWidget</string>
+							</array>
+						</dict>
+						<key>Widget/Access/AccessWidget/AccessWidget.xib</key>
+						<dict>
+							<key>Path</key>
+							<string>Widget/Access/AccessWidget/AccessWidget.xib</string>
+							<key>Group</key>
+							<array>
+								<string>Widget</string>
+								<string>Access</string>
+								<string>AccessWidget</string>
+							</array>
+						</dict>
+						<key>Widget/Access/LoginSignupWidget/SignupLoginWidget.swift</key>
+						<dict>
+							<key>Path</key>
+							<string>Widget/Access/LoginSignupWidget/SignupLoginWidget.swift</string>
+							<key>Group</key>
+							<array>
+								<string>Widget</string>
+								<string>Access</string>
+								<string>LoginSignupWidget</string>
+							</array>
+						</dict>
+						<key>Widget/Access/LoginSignupWidget/SignupLoginWidget.xib</key>
+						<dict>
+							<key>Path</key>
+							<string>Widget/Access/LoginSignupWidget/SignupLoginWidget.xib</string>
+							<key>Group</key>
+							<array>
+								<string>Widget</string>
+								<string>Access</string>
+								<string>LoginSignupWidget</string>
+							</array>
+						</dict>
+						<key>Widget/GeneralWidget/TextFieldWidget/TextFieldView.swift</key>
+						<dict>
+							<key>Path</key>
+							<string>Widget/GeneralWidget/TextFieldWidget/TextFieldView.swift</string>
+							<key>Group</key>
+							<array>
+								<string>Widget</string>
+								<string>GeneralWidget</string>
+								<string>TextFieldWidget</string>
+							</array>
+						</dict>
+						<key>Widget/GeneralWidget/TextFieldWidget/TextFieldView.xib</key>
+						<dict>
+							<key>Path</key>
+							<string>Widget/GeneralWidget/TextFieldWidget/TextFieldView.xib</string>
+							<key>Group</key>
+							<array>
+								<string>Widget</string>
+								<string>GeneralWidget</string>
+								<string>TextFieldWidget</string>
+							</array>
+						</dict>
+						<key>Services/Firebase/FirebaseAccess.swift</key>
+						<dict>
+							<key>Path</key>
+							<string>Services/Firebase/FirebaseAccess.swift</string>
+							<key>Group</key>
+							<array>
+								<string>Services</string>
+								<string>Firebase</string>
+							</array>
+						</dict>
+						<key>Subclasses/Base/BaseEnums.swift</key>
+						<dict>
+							<key>Path</key>
+							<string>Subclasses/Base/BaseEnums.swift</string>
+							<key>Group</key>
+							<array>
+								<string>Subclasses</string>
+								<string>Base</string>
+							</array>
+						</dict>
+						<key>AppDelegate.swift:implementation</key>
+						<string>class AppDelegate: UIResponder, UIApplicationDelegate {
+
+    var window: UIWindow?
+
+
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -&gt; Bool {
+        // Override point for customization after application launch.
+        
+        FirebaseAccess.initFirebase()
+        
+        let screenBounds:CGRect = UIScreen.main.bounds
+
+        let viewController = LoadingViewController()
+
+        self.window = UIWindow(frame: screenBounds)
+
+        self.window?.rootViewController = viewController
+        self.window?.makeKeyAndVisible()
+        
+        return true
+    }
+
+    func applicationWillResignActive(_ application: UIApplication) {
+        // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
+        // Use this method to pause ongoing tasks, disable timers, and invalidate graphics rendering callbacks. Games should use this method to pause the game.
+    }
+
+    func applicationDidEnterBackground(_ application: UIApplication) {
+        // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
+        // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
+    }
+
+    func applicationWillEnterForeground(_ application: UIApplication) {
+        // Called as part of the transition from the background to the active state; here you can undo many of the changes made on entering the background.
+    }
+
+    func applicationDidBecomeActive(_ application: UIApplication) {
+        // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
+    }
+
+    func applicationWillTerminate(_ application: UIApplication) {
+        // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
+    }
+
+
+}
+
+</string>
+						<key>Services/Models/SettingsApp/FirebaseSettings.swift</key>
+						<dict>
+							<key>Path</key>
+							<string>Services/Models/SettingsApp/FirebaseSettings.swift</string>
+							<key>Group</key>
+							<array>
+								<string>Services</string>
+								<string>Model</string>
+								<string>SettingsApp</string>
+							</array>
+						</dict>
+						<key>Services/Models/SignupLoginModel.swift</key>
+						<dict>
+							<key>Path</key>
+							<string>Services/Models/SignupLoginModel.swift</string>
+							<key>Group</key>
+							<array>
+								<string>Services</string>
+								<string>Model</string>
+							</array>
+						</dict>
+						<key>Services/Models/SignupLoginModel.swift:implementation</key>
+						<string>//
+//  SignupLoginModel.swift
+//
+//  Created by stefano vecchiati.
+//  Copyright © 2018 com.stefanovecchiati. All rights reserved.
+//
+
+import UIKit
+
+class SignupLoginModel: BaseCellStruct {
+    
+    var access : Access!
+    
+    static func createModel(access : Access) -&gt; BaseModel? {
+        
+        let model = BaseModel()
+        let cell = SignupLoginModel(nib:
+            UINib(nibName: String(describing: SignupLoginWidget.classForCoder()), bundle: nil),
+                                   identifier: SignupLoginWidget.reuseIdentifier(),
+                                   father: nil)
+        
+        
+        cell.access = access
+        
+        model.cells = [cell]
+        
+        model.centerViewController = false
+        model.scrollingViewController = false
+        
+        var title : String!
+        switch access {
+        case .signup:
+            title = R.string.localizable.kSignupTitle().uppercased()
+        case .login:
+            title = R.string.localizable.kLogin().uppercased()
+        case .forgetPassword:
+            title = R.string.localizable.kResetPassword().uppercased()
+        }
+        
+        model.titleViewController = title
+        
+        return model
+    }
+
+}
+</string>
+					</dict>
+					<key>Nodes</key>
+					<array>
+						<string>../Podfile:fbpod</string>
+						<string>../Podfile:fbauth</string>
+						<string>../Podfile:fbcod</string>
+						<string>Widget/Access/AccessWidget/AccessWidget.swift</string>
+						<string>Widget/Access/AccessWidget/AccessWidget.xib</string>
+						<string>Widget/Access/LoginSignupWidget/SignupLoginWidget.swift</string>
+						<string>Widget/Access/LoginSignupWidget/SignupLoginWidget.xib</string>
+						<string>Widget/GeneralWidget/TextFieldWidget/TextFieldView.swift</string>
+						<string>Widget/GeneralWidget/TextFieldWidget/TextFieldView.xib</string>
+						<string>Services/Firebase/FirebaseAccess.swift</string>
+						<string>Subclasses/Base/BaseEnums.swift</string>
+						<string>Services/Models/SignupLoginModel.swift:implementation</string>
+						<string>Services/Models/SettingsApp/FirebaseSettings.swift:implementation</string>
+					</array>
+				</dict>
+				<key>false</key>
+				<array>
+					<dict>
+						<key>RequiredOptions</key>
+						<dict>
+							<key>languageChoice</key>
+							<string>Swift</string>
+						</dict>
+						<key>Definitions</key>
+						<dict>
+							<key>LoadingViewController.swift:implementation:methods:viewDidLoad</key>
+							<string>override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        self.view.backgroundColor = .white
+        
+        
+        
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        
+        super.viewDidAppear(animated)
+        
+        let viewController = ViewController(withModel: Model.createModel())
+        
+        UIApplication.shared.delegate?.window??.rootViewController = BaseNavigationController(rootViewController: viewController)
+        UIApplication.shared.delegate?.window??.makeKeyAndVisible()
+        
+    }
+    
+    
+    override func didReceiveMemoryWarning() {
+        super.didReceiveMemoryWarning()
+        // Dispose of any resources that can be recreated.
+    }</string>
+							<key>AppDelegate.swift:implementation</key>
+							<string>class AppDelegate: UIResponder, UIApplicationDelegate {
+
+    var window: UIWindow?
+
+
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -&gt; Bool {
+        // Override point for customization after application launch.
+        
+        
+        let screenBounds:CGRect = UIScreen.main.bounds
+
+        let viewController = LoadingViewController()
+
+        self.window = UIWindow(frame: screenBounds)
+
+        self.window?.rootViewController = viewController
+        self.window?.makeKeyAndVisible()
+        
+        return true
+    }
+
+    func applicationWillResignActive(_ application: UIApplication) {
+        // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
+        // Use this method to pause ongoing tasks, disable timers, and invalidate graphics rendering callbacks. Games should use this method to pause the game.
+    }
+
+    func applicationDidEnterBackground(_ application: UIApplication) {
+        // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
+        // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
+    }
+
+    func applicationWillEnterForeground(_ application: UIApplication) {
+        // Called as part of the transition from the background to the active state; here you can undo many of the changes made on entering the background.
+    }
+
+    func applicationDidBecomeActive(_ application: UIApplication) {
+        // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
+    }
+
+    func applicationWillTerminate(_ application: UIApplication) {
+        // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
+    }
+
+
+}
+
+</string>
+						</dict>
+					</dict>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>Identifier</key>
+			<string>use realm database</string>
+			<key>Name</key>
+			<string>Realm Database</string>
+			<key>NotPersisted</key>
+			<false/>
+			<key>Type</key>
+			<string>checkbox</string>
+			<key>Default</key>
+			<string>true</string>
+			<key>Units</key>
+			<dict>
+				<key>true</key>
+				<dict>
+					<key>RequiredOptions</key>
+					<dict>
+						<key>languageChoice</key>
+						<string>Swift</string>
+					</dict>
+					<key>Definitions</key>
+					<dict>
+						<key>../Podfile:realmpod</key>
+						<string>pod &apos;RealmSwift&apos;</string>
+						<key>Services/Models/Model.swift:implementation</key>
+						<string>//
+//  Created by stefano vecchiati.
+//  Copyright © 2018 co.eggon. All rights reserved.
+//
+
+import Foundation
+import RealmSwift
+
+class ViewWidgetModel : BaseCellStruct {
+    
+}
+
+@objcMembers class Model: Object, Codable {
+
+    dynamic var id: String = &quot;&quot;
+
+    override class func primaryKey() -&gt; String? {
+        return &quot;id&quot;
+    }
+
+    func save(in realm: Realm = try! Realm(configuration: RealmUtils.config)) {
+        do {
+            try realm.write {
+                realm.add(self, update: true)
+            }
+        } catch {}
+    }
+
+    static func getObject(in realm: Realm = try! Realm(configuration: RealmUtils.config), withId id : String) -&gt; Model? {
+        return realm.object(ofType: Model.self, forPrimaryKey: id)
+    }
+
+    static func all(in realm: Realm = try! Realm(configuration: RealmUtils.config)) -&gt; [Model] {
+        return Array(realm.objects(Model.self))
+    }
+
+
+    static func createModel(withID id : String? = nil) -&gt; BaseModel? {
+
+
+        let model = BaseModel()
+        let cell = ViewWidgetModel(nib:
+            UINib(nibName: String(describing: ViewWidget.classForCoder()), bundle: nil),
+                           identifier: ViewWidget.reuseIdentifier(),
+                           father: nil)
+
+        model.cells = [cell]
+
+        model.centerViewController = true
+        model.scrollingViewController = false
+
+        return model
+    }
+
+    
+}
+</string>
+						<key>Services/RealmUtils.swift</key>
+						<dict>
+							<key>Path</key>
+							<string>Services/RealmUtils.swift</string>
+							<key>Group</key>
+							<array>
+								<string>Services</string>
+							</array>
+						</dict>
+						<key>Services/RealmUtils.swift:implementation</key>
+						<string>//
+//  RealmUtils.swift
+//
+//  Created by stefano vecchiati.
+//  Copyright © 2018 co.eggon. All rights reserved.
+//
+
+
+import Foundation
+import RealmSwift
+
+class RealmUtils {
+
+    private static var REALM_SCHEMA_VERSION : UInt64 = 0
+
+    /// Setup Realm Configuration
+    static var config: Realm.Configuration {
+        get {
+
+            let config = Realm.Configuration(
+                // Set the new schema version. This must be greater than the previously used
+                // version (if you&apos;ve never set a schema version before, the version is 0).
+                schemaVersion: REALM_SCHEMA_VERSION,
+
+                // Set the block which will be called automatically when opening a Realm with
+                // a schema version lower than the one set above
+                migrationBlock: { migration, oldSchemaVersion in
+                    // We haven’t migrated anything yet, so oldSchemaVersion == 0
+                    if (oldSchemaVersion &lt; self.REALM_SCHEMA_VERSION) {
+                        //
+                    }
+            }, deleteRealmIfMigrationNeeded: false)
+
+            return config
+
+        }
+    }
+
+}
+</string>
+						<key>Services/Models/SettingsApp/GenericSettings.swift:implementation</key>
+						<string>//
+//  GenericSettings.swift
+//
+//  Created by stefano vecchiati.
+//  Copyright © 2018 com.stefanovecchiati. All rights reserved.
+//
+
+import UIKit
+import RealmSwift
+
+@objcMembers class GenericSettings: Object, Codable {
+
+    dynamic var id: String = &quot;settings&quot;
+    
+    dynamic var heightElementStandardConstraint : CGFloat = 50
+    dynamic var heightElementOldIphonesConstraint : CGFloat = 40
+    
+    dynamic var customPrimaryColor : String = &quot;007AFF&quot;
+    
+    override class func primaryKey() -&gt; String? {
+        return &quot;id&quot;
+    }
+    
+    func save(in realm: Realm = try! Realm(configuration: RealmUtils.config)) {
+        do {
+            try realm.write {
+                realm.add(self, update: true)
+            }
+        } catch {}
+    }
+    
+    static func getObject(in realm: Realm = try! Realm(configuration: RealmUtils.config), withId id : String = &quot;settings&quot;) -&gt; GenericSettings? {
+        if realm.object(ofType: GenericSettings.self, forPrimaryKey: id) == nil {
+            GenericSettings().save()
+        }
+        return realm.object(ofType: GenericSettings.self, forPrimaryKey: id)
+    }
+    
+}
+</string>
+						<key>Services/Models/SettingsApp/FirebaseSettings.swift:implementation</key>
+						<string>//
+//  FirebaseSettings.swift
+//
+//  Created by stefano vecchiati.
+//  Copyright © 2018 com.stefanovecchiati. All rights reserved.
+//
+
+import UIKit
+import RealmSwift
+
+@objcMembers class FirebaseSettings: Object, Codable {
+    
+    dynamic var id: String = &quot;settings&quot;
+    dynamic var sendEmailVerification : Bool = true
+    
+    override class func primaryKey() -&gt; String? {
+        return &quot;id&quot;
+    }
+    
+    func save(in realm: Realm = try! Realm(configuration: RealmUtils.config)) {
+        do {
+            try realm.write {
+                realm.add(self, update: true)
+            }
+        } catch {}
+    }
+    
+    static func getObject(in realm: Realm = try! Realm(configuration: RealmUtils.config), withId id : String = &quot;settings&quot;) -&gt; FirebaseSettings? {
+        if realm.object(ofType: FirebaseSettings.self, forPrimaryKey: id) == nil {
+            FirebaseSettings().save()
+        }
+        return realm.object(ofType: FirebaseSettings.self, forPrimaryKey: id)
+    }
+
+}
+</string>
+					</dict>
+					<key>Nodes</key>
+					<array>
+						<string>../Podfile:realmpod</string>
+						<string>Services/Models/Model.swift:implementation</string>
+						<string>Services/RealmUtils.swift:implementation</string>
+						<string>Services/Models/SettingsApp/GenericSettings.swift:implementation</string>
+					</array>
+				</dict>
+				<key>false</key>
+				<array>
+					<dict>
+						<key>RequiredOptions</key>
+						<dict>
+							<key>languageChoice</key>
+							<string>Swift</string>
+						</dict>
+						<key>Definitions</key>
+						<dict>
+							<key>Services/Models/Model.swift:implementation</key>
+							<string>//
+//  Created by stefano vecchiati.
+//  Copyright © 2018 co.eggon. All rights reserved.
+//
+
+import UIKit
+
+class ViewWidgetModel : BaseCellStruct {
+    
+}
+
+class Model: Codable {
+
+
+    static func createModel() -&gt; BaseModel? {
+
+        let model = BaseModel()
+        let cell = ViewWidgetModel(nib:
+            UINib(nibName: String(describing: ViewWidget.classForCoder()), bundle: nil),
+                           identifier: ViewWidget.reuseIdentifier(),
+                           father: nil)
+
+        model.cells = [cell]
+
+        model.centerViewController = true
+        model.scrollingViewController = false
+
+        return model
+    }
+
+    
+}</string>
+							<key>Services/Models/SettingsApp/GenericSettings.swift:implementation</key>
+							<string>//
+//  GenericSettings.swift
+//
+//  Created by stefano vecchiati
+//  Copyright © 2018 com.stefanovecchiati. All rights reserved.
+//
+
+import UIKit
+
+class GenericSettings: NSObject, Codable {
+
+    var id: String = &quot;settings&quot;
+    
+    var heightElementStandardConstraint : CGFloat = 50
+    var heightElementOldIphonesConstraint : CGFloat = 40
+    
+    var customPrimaryColor : String = &quot;007AFF&quot;
+    
+    
+}
+</string>
+							<key>Services/Models/SettingsApp/FirebaseSettings.swift:implementation</key>
+							<string>//
+//  FirebaseSettings.swift
+//
+//  Created by stefano vecchiati.
+//  Copyright © 2018 com.stefanovecchiati. All rights reserved.
+//
+
+import UIKit
+
+class FirebaseSettings: NSObject, Codable {
+    
+    var id: String = &quot;settings&quot;
+    var sendEmailVerification : Bool = true
+    
+
+}</string>
+						</dict>
+						<key>Nodes</key>
+						<array>
+							<string>Services/Models/Model.swift:implementation</string>
+							<string>Services/Models/SettingsApp/GenericSettings.swift:implementation</string>
+						</array>
+					</dict>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>Identifier</key>
+			<string>languageChoice</string>
+			<key>Units</key>
+			<dict>
+				<key>Swift</key>
+				<dict>
+					<key>Definitions</key>
+					<dict>
+						<key>../Podfile:end</key>
+						<string>
+end</string>
+					</dict>
+					<key>Nodes</key>
+					<array>
+						<string>../Podfile:end</string>
+					</array>
+				</dict>
+			</dict>
+		</dict>
+	</array>
+	<key>Definitions</key>
+	<dict>
+		<key>../Podfile:swiftbasics</key>
+		<string># Uncomment the next line to define a global platform for your project
+# platform :ios, &apos;9.0&apos;
+
+target &apos;___PACKAGENAMEASIDENTIFIER___&apos; do
+  # Comment the next line if you&apos;re not using Swift and don&apos;t want to use dynamic frameworks
+  use_frameworks!
+
+
+pod &apos;R.swift&apos;, &apos;~&gt; 5.0.0.alpha.2&apos;
+
+pod &apos;Reveal-SDK&apos;, :configurations =&gt; [&apos;Debug&apos;]</string>
+		<key>AppDelegate.swift</key>
+		<dict>
+			<key>Path</key>
+			<string>AppDelegate.swift</string>
+		</dict>
+		<key>Extensions.swift</key>
+		<dict>
+			<key>Path</key>
+			<string>Extensions.swift</string>
+		</dict>
+		<key>Subclasses/Base/BaseCollectionViewCell.swift</key>
+		<dict>
+			<key>Path</key>
+			<string>Subclasses/Base/BaseCollectionViewCell.swift</string>
+			<key>Group</key>
+			<array>
+				<string>Subclasses</string>
+				<string>Base</string>
+			</array>
+		</dict>
+		<key>Subclasses/Base/BaseColletcionView.swift</key>
+		<dict>
+			<key>Path</key>
+			<string>Subclasses/Base/BaseColletcionView.swift</string>
+			<key>Group</key>
+			<array>
+				<string>Subclasses</string>
+				<string>Base</string>
+			</array>
+		</dict>
+		<key>Subclasses/Base/BaseModel.swift</key>
+		<dict>
+			<key>Path</key>
+			<string>Subclasses/Base/BaseModel.swift</string>
+			<key>Group</key>
+			<array>
+				<string>Subclasses</string>
+				<string>Base</string>
+			</array>
+		</dict>
+		<key>Subclasses/Base/BaseNavigationController.swift</key>
+		<dict>
+			<key>Path</key>
+			<string>Subclasses/Base/BaseNavigationController.swift</string>
+			<key>Group</key>
+			<array>
+				<string>Subclasses</string>
+				<string>Base</string>
+			</array>
+		</dict>
+		<key>Subclasses/Base/BaseTabBarController.swift</key>
+		<dict>
+			<key>Path</key>
+			<string>Subclasses/Base/BaseTabBarController.swift</string>
+			<key>Group</key>
+			<array>
+				<string>Subclasses</string>
+				<string>Base</string>
+			</array>
+		</dict>
+		<key>Subclasses/Base/BaseWidgetView.swift</key>
+		<dict>
+			<key>Path</key>
+			<string>Subclasses/Base/BaseWidgetView.swift</string>
+			<key>Group</key>
+			<array>
+				<string>Subclasses</string>
+				<string>Base</string>
+			</array>
+		</dict>
+		<key>Subclasses/Base/BaseHorizontalCollectionView/BaseHorizontalCollectionView.swift</key>
+		<dict>
+			<key>Path</key>
+			<string>Subclasses/Base/BaseHorizontalCollectionView/BaseHorizontalCollectionView.swift</string>
+			<key>Group</key>
+			<array>
+				<string>Subclasses</string>
+				<string>Base</string>
+				<string>BaseHorizontalCollectionView</string>
+			</array>
+		</dict>
+		<key>Subclasses/Base/BaseHorizontalCollectionView/BaseHorizontalCollectionView.xib</key>
+		<dict>
+			<key>Path</key>
+			<string>Subclasses/Base/BaseHorizontalCollectionView/BaseHorizontalCollectionView.xib</string>
+			<key>Group</key>
+			<array>
+				<string>Subclasses</string>
+				<string>Base</string>
+				<string>BaseHorizontalCollectionView</string>
+			</array>
+		</dict>
+		<key>Subclasses/Base/ViewController/ViewController.swift</key>
+		<dict>
+			<key>Path</key>
+			<string>Subclasses/Base/ViewController/ViewController.swift</string>
+			<key>Group</key>
+			<array>
+				<string>Subclasses</string>
+				<string>Base</string>
+				<string>ViewController</string>
+			</array>
+		</dict>
+		<key>Widget/ViewWidget/ViewWidget.swift</key>
+		<dict>
+			<key>Path</key>
+			<string>Widget/ViewWidget/ViewWidget.swift</string>
+			<key>Group</key>
+			<array>
+				<string>Widget</string>
+				<string>ViewWidget</string>
+			</array>
+		</dict>
+		<key>Services/Models/Model.swift</key>
+		<dict>
+			<key>Path</key>
+			<string>Services/Models/Model.swift</string>
+			<key>Group</key>
+			<array>
+				<string>Services</string>
+				<string>Model</string>
+			</array>
+		</dict>
+		<key>Services/Models/SettingsApp/GenericSettings.swift</key>
+		<dict>
+			<key>Path</key>
+			<string>Services/Models/SettingsApp/GenericSettings.swift</string>
+			<key>Group</key>
+			<array>
+				<string>Services</string>
+				<string>Model</string>
+				<string>SettingsApp</string>
+			</array>
+		</dict>
+		<key>Widget/ViewWidget/ViewWidget.xib</key>
+		<dict>
+			<key>Path</key>
+			<string>Widget/ViewWidget/ViewWidget.xib</string>
+			<key>Group</key>
+			<array>
+				<string>Widget</string>
+				<string>ViewWidget</string>
+			</array>
+		</dict>
+		<key>GeneralUtils.swift</key>
+		<dict>
+			<key>Path</key>
+			<string>GeneralUtils.swift</string>
+		</dict>
+		<key>R.generated.swift</key>
+		<dict>
+			<key>Path</key>
+			<string>R.generated.swift</string>
+		</dict>
+		<key>DeviceModel.swift</key>
+		<dict>
+			<key>Path</key>
+			<string>DeviceModel.swift</string>
+		</dict>
+		<key>en.lproj/Localizable.strings</key>
+		<dict>
+			<key>Path</key>
+			<string>en.lproj/Localizable.strings</string>
+		</dict>
+		<key>Subclasses/GeneralHeightElementsConstraint.swift</key>
+		<dict>
+			<key>Path</key>
+			<string>Subclasses/GeneralHeightElementsConstraint.swift</string>
+			<key>Group</key>
+			<array>
+				<string>Subclasses</string>
+			</array>
+		</dict>
+		<key>Subclasses/Buttons/GeneralButton.swift</key>
+		<dict>
+			<key>Path</key>
+			<string>Subclasses/Buttons/GeneralButton.swift</string>
+			<key>Group</key>
+			<array>
+				<string>Subclasses</string>
+				<string>Buttons</string>
+			</array>
+		</dict>
+		<key>Subclasses/Buttons/UnderlineButton.swift</key>
+		<dict>
+			<key>Path</key>
+			<string>Subclasses/Buttons/UnderlineButton.swift</string>
+			<key>Group</key>
+			<array>
+				<string>Subclasses</string>
+				<string>Buttons</string>
+			</array>
+		</dict>
+		<key>Assets.xcassets</key>
+		<dict>
+			<key>Path</key>
+			<string>Assets.xcassets</string>
+			<key>AssetGeneration</key>
+			<array>
+				<dict>
+					<key>Type</key>
+					<string>appicon</string>
+					<key>Name</key>
+					<string>AppIcon</string>
+					<key>Platforms</key>
+					<dict>
+						<key>macOS</key>
+						<string>true</string>
+					</dict>
+				</dict>
+			</array>
+			<key>SortOrder</key>
+			<integer>100</integer>
+		</dict>
+	</dict>
+	<key>Template Author</key>
+	<string>Stefano Vecchiati</string>
+</dict>
+</plist>

@@ -1,0 +1,36 @@
+/* 
+  Localizable.strings
+  Heldev
+
+  Created by stefano vecchiati on 07/11/2018.
+  Copyright © 2018 com.stefanovecchiati. All rights reserved.
+*/
+
+kOkay = "Okay";
+
+kLogin = "Login";
+kSignup = "Create an account";
+kForgotPassword = "Forgot your password?";
+kResetPassword = "Reset Password";
+kSignout = "Sign Out";
+
+kSignupTitle = "SignUp";
+
+kErorr = "Error";
+
+kEmail = "Email";
+kPassword = "Password";
+kRepeatPassword = "Repeat password";
+
+kNoEmail = "You must insert a valid email";
+kInvalidPassword = "You must insert a valid password";
+kInvalidPasswordOrNotMatching = "You must insert a valid password, or the password is not equal with the repeat password";
+kfailedAccessToken = "Failed to get access token";
+
+kEmailSent = "Email sent";
+kEmailSentDescription = "We sent you an email, if you don't get it checked in spam";
+
+kStandby = "Standby";
+kStandbyDescription = "The application is waiting to have your email verified. You should have received an email for verifying it.\n\n ATTENTION: the email could be on the spam.";
+kStandbyAction = "Access with another user";
+kResendEmail = "Resend email";
