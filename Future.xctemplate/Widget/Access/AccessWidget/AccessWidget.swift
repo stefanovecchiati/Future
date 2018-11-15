@@ -48,6 +48,8 @@ class AccessWidget: BaseCollectionViewCell {
         
         self.addConstraints([widthConstraint, heightConstraint])
         
+        layoutIfNeeded()
+        
     }
     
     @IBAction func signupAction(_ sender: Any) {
