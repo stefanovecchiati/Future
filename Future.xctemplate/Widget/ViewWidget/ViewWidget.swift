@@ -30,6 +30,8 @@ class ViewWidget: BaseCollectionViewCell {
         heightConstraint.priority = .defaultHigh
         
         self.addConstraints([widthConstraint, heightConstraint])
+        
+        layoutIfNeeded()
     }
     
     override func willMove(toWindow newWindow: UIWindow?) {
