@@ -588,7 +588,7 @@ class ViewWidgetModel : BaseCellStruct {
 
         model.cells = [cell]
 
-        model.centerViewController = true
+        model.centerViewController = false
         model.scrollingViewController = false
 
         return model
@@ -769,7 +769,7 @@ class Model: Codable {
 
         model.cells = [cell]
 
-        model.centerViewController = true
+        model.centerViewController = false
         model.scrollingViewController = false
 
         return model
