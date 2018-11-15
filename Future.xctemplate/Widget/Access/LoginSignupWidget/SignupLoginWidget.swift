@@ -288,7 +288,7 @@ class SignupLoginWidget: BaseCollectionViewCell {
             
             self.constraints[self.constraints.count - 1].constant = self.constraints[self.constraints.count - 1].constant - keyboardHeight
             
-            
+            layoutIfNeeded()
         }
         
     }
