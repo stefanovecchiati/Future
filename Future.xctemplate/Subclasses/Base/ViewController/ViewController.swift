@@ -98,24 +98,18 @@ class ViewController: UIViewController {
         
         //        collectionView.contentInset = UIEdgeInsets(top: 15, left: 0, bottom: 15, right: 0)
         
+        collectionView.setupCollection(withModel: viewModel)
+        
+        
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         
         collectionView.setupCollection(withModel: viewModel)
         
+        collectionView.topAnchor.constraint(equalTo: topLayoutGuide.bottomAnchor, constant: 0).isActive = true
+        collectionView.bottomAnchor.constraint(equalTo: bottomLayoutGuide.topAnchor, constant: 0).isActive = true
         
-        let leftConstraint = NSLayoutConstraint(item: collectionView, attribute: NSLayoutConstraint.Attribute.left, relatedBy: NSLayoutConstraint.Relation.equal, toItem: view, attribute: NSLayoutConstraint.Attribute.left, multiplier: 1, constant: 0)
-        leftConstraint.priority = .defaultHigh
-        
-        let rightConstraint = NSLayoutConstraint(item: collectionView, attribute: NSLayoutConstraint.Attribute.right, relatedBy: NSLayoutConstraint.Relation.equal, toItem: view, attribute: NSLayoutConstraint.Attribute.right, multiplier: 1, constant: 0)
-        rightConstraint.priority = .defaultHigh
-        
-        let topConstraint = NSLayoutConstraint(item: collectionView, attribute: NSLayoutConstraint.Attribute.top, relatedBy: NSLayoutConstraint.Relation.equal, toItem: view, attribute: NSLayoutConstraint.Attribute.top, multiplier: 1, constant: 0)
-        topConstraint.priority = .defaultHigh
-        
-        let bottomConstraint = NSLayoutConstraint(item: collectionView, attribute: NSLayoutConstraint.Attribute.bottom, relatedBy: NSLayoutConstraint.Relation.equal, toItem: view, attribute: NSLayoutConstraint.Attribute.bottom, multiplier: 1, constant: 0)
-        bottomConstraint.priority = .defaultHigh
-        
-        view.addConstraints([leftConstraint, rightConstraint, topConstraint, bottomConstraint])
+        collectionView.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 0).isActive = true
+        collectionView.rightAnchor.constraint(equalTo: view.rightAnchor, constant: 0).isActive = true
         
         
     }
