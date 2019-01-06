@@ -27,6 +27,20 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        if viewModel.resizeForKeyboard {
+            
+            let notificationCenter = NotificationCenter.default
+            notificationCenter.addObserver(self, selector: #selector(adjustForKeyboard), name: UIResponder.keyboardWillHideNotification, object: nil)
+            notificationCenter.addObserver(self, selector: #selector(adjustForKeyboard), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
+            
+        }
+        
+        if viewModel.touchForCloseKeyboard {
+            
+            hideKeyboardWhenTappedAround()
+            
+        }
+        
         if viewModel.titleViewController != nil && !viewModel.titleViewController.isEmpty {
             self.title = viewModel.titleViewController
         }
@@ -55,10 +69,20 @@ class ViewController: UIViewController {
         UIApplication.topViewController()?.navigationController?.setNavigationBarHidden(viewModel.hideNavigationBar, animated: animated)
     }
     
+    private var firstLoad: Bool = true
+    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        if viewModel.centerViewController {
-            collectionView.contentInset.top = max((collectionView.frame.height - collectionView.contentSize.height) / 2, 0)
+        
+        if firstLoad {
+            
+            firstLoad = false
+            
+            viewModel.delegate?.loadWidget?()
+            
+            if viewModel.centerViewController {
+                collectionView.contentInset.top = max((collectionView.frame.height - collectionView.contentSize.height) / 2, 0)
+            }
         }
         
         
@@ -91,26 +115,54 @@ class ViewController: UIViewController {
         view.addConstraints([leftConstraint, rightConstraint, topConstraint, bottomConstraint])
     }
     
+    var collectionBottomConstraint : NSLayoutConstraint!
+    
     private func addCollectionView() {
         
         collectionView = BaseColletcionView(frame: view.frame, collectionViewLayout: UICollectionViewFlowLayout.init())
         view.addSubview(collectionView)
         
-        //        collectionView.contentInset = UIEdgeInsets(top: 15, left: 0, bottom: 15, right: 0)
-        
-        collectionView.setupCollection(withModel: viewModel)
-        
         
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         
+        let leftConstraint = NSLayoutConstraint(item: collectionView, attribute: NSLayoutConstraint.Attribute.left, relatedBy: NSLayoutConstraint.Relation.equal, toItem: view, attribute: NSLayoutConstraint.Attribute.left, multiplier: 1, constant: 0)
+        //        leftConstraint.priority = .defaultHigh
+        
+        let rightConstraint = NSLayoutConstraint(item: collectionView, attribute: NSLayoutConstraint.Attribute.right, relatedBy: NSLayoutConstraint.Relation.equal, toItem: view, attribute: NSLayoutConstraint.Attribute.right, multiplier: 1, constant: 0)
+        //        rightConstraint.priority = .defaultHigh
+        
+        let topConstraint = NSLayoutConstraint(item: collectionView, attribute: NSLayoutConstraint.Attribute.top, relatedBy: NSLayoutConstraint.Relation.equal, toItem: view, attribute: NSLayoutConstraint.Attribute.topMargin, multiplier: 1, constant: 0)
+        //        topConstraint.priority = .defaultHigh
+        
+        collectionBottomConstraint = NSLayoutConstraint(item: collectionView, attribute: NSLayoutConstraint.Attribute.bottom, relatedBy: NSLayoutConstraint.Relation.equal, toItem: view, attribute: NSLayoutConstraint.Attribute.bottomMargin, multiplier: 1, constant: 0)
+        //        bottomConstraint.priority = .defaultHigh
+        
+        view.addConstraints([leftConstraint, rightConstraint, topConstraint, collectionBottomConstraint])
+        
         collectionView.setupCollection(withModel: viewModel)
         
-        collectionView.topAnchor.constraint(equalTo: topLayoutGuide.bottomAnchor, constant: 0).isActive = true
-        collectionView.bottomAnchor.constraint(equalTo: bottomLayoutGuide.topAnchor, constant: 0).isActive = true
+        collectionView.layoutIfNeeded()
         
-        collectionView.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 0).isActive = true
-        collectionView.rightAnchor.constraint(equalTo: view.rightAnchor, constant: 0).isActive = true
         
+    }
+    
+    @objc func adjustForKeyboard(notification: Notification) {
+        let userInfo = notification.userInfo!
+        
+        let keyboardScreenEndFrame = (userInfo[UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue
+        
+        if notification.name == UIResponder.keyboardWillHideNotification {
+            collectionBottomConstraint.constant = 0
+        } else {
+            collectionBottomConstraint.constant = collectionBottomConstraint.constant - keyboardScreenEndFrame.height
+        }
+    }
+    
+    deinit {
+        viewModel.delegate?.deinitListener?()
+        
+        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
+        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
         
     }
     
@@ -135,8 +187,27 @@ extension ViewController: UICollectionViewDelegate, UICollectionViewDataSource {
         
         cell.baseModel = viewModel
         cell.selectedStruct = cellsToLoad[indexPath.item]
+        cell.delegate = cellsToLoad[indexPath.item].delegate
+        
+        cell.contentSetup()
         
         return cell
     }
     
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        viewModel.delegate?.selectedCell(index: indexPath)
+    }
+    
+}
+
+extension ViewController {
+    func hideKeyboardWhenTappedAround() {
+        let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(self.dismissKeyboard))
+        tap.cancelsTouchesInView = false
+        view.addGestureRecognizer(tap)
+    }
+    
+    @objc func dismissKeyboard() {
+        view.endEditing(true)
+    }
 }
